@@ -12,7 +12,9 @@ using namespace sf;
 #include "Projectle.h"
 #include "Aleins.h"
 //============================================================
-// YOUR HEADER WITH YOUR NAME GOES HERE. PLEASE DO NOT FORGET THIS
+// Nate  Bellcock
+// Game
+// 4/19/19
 //============================================================
 
 // note: a Sprite represents an image on screen. A sprite knows and remembers its own position
