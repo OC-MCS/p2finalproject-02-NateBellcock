@@ -151,6 +151,14 @@
   <ItemGroup>
     <Text Include="Readme.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Aleins.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="Projectle.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Tie.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

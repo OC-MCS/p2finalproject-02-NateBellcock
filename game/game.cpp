@@ -8,7 +8,9 @@
 using namespace std;
 #include <SFML/Graphics.hpp>
 using namespace sf; 
-
+#include "Player.h"
+#include "Projectle.h"
+#include "Aleins.h"
 //============================================================
 // YOUR HEADER WITH YOUR NAME GOES HERE. PLEASE DO NOT FORGET THIS
 //============================================================
@@ -18,23 +20,6 @@ using namespace sf;
 // the current position of the ship. 
 // x is horizontal, y is vertical. 
 // 0,0 is in the UPPER LEFT of the screen, y increases DOWN the screen
-void moveShip(Sprite& ship)
-{
-	const float DISTANCE = 5.0;
-
-	if (Keyboard::isKeyPressed(Keyboard::Left))
-	{
-		// left arrow is pressed: move our ship left 5 pixels
-		// 2nd parm is y direction. We don't want to move up/down, so it's zero.
-		ship.move(-DISTANCE, 0);
-	}
-	else if (Keyboard::isKeyPressed(Keyboard::Right))
-	{
-		// right arrow is pressed: move our ship right 5 pixels
-		ship.move(DISTANCE, 0);
-	}
-}
-
 
 
 int main()
@@ -45,7 +30,9 @@ int main()
 	RenderWindow window(VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "aliens!");
 	// Limit the framerate to 60 frames per second
 	window.setFramerateLimit(60);
-
+	bool canFire;
+	int conter = 0;
+	int fameCount = 0;
 	// load textures from file into memory. This doesn't display anything yet.
 	// Notice we do this *before* going into animation loop.
 	Texture shipTexture;
@@ -60,6 +47,19 @@ int main()
 		cout << "Unable to load stars texture!" << endl;
 		exit(EXIT_FAILURE);
 	}
+	Texture missileTexture;
+	if (!missileTexture.loadFromFile("missile.png"))
+	{
+		cout << "Unable to load missile texture!" << endl;
+		exit(EXIT_FAILURE);
+	}
+	Texture alineTexture;
+	if (!alineTexture.loadFromFile("Tie.png"))
+	{
+		cout << "Unable to load Tie texture!" << endl;
+		exit(EXIT_FAILURE);
+	}
+
 
 	// A sprite is a thing we can draw and manipulate on the screen.
 	// We have to give it a "texture" to specify what it looks like
@@ -70,14 +70,10 @@ int main()
 	background.setScale(1.5, 1.5);
 
 	// create sprite and texture it
-	Sprite ship;
-	ship.setTexture(shipTexture);
-
-
-	// initial position of the ship will be approx middle of screen
-	float shipX = window.getSize().x / 2.0f;
-	float shipY = window.getSize().y / 2.0f;
-	ship.setPosition(shipX, shipY);
+	Player player(shipTexture, window);
+	Missiles missiles;
+	Squadron squad(alineTexture);
+	
 
 
 	while (window.isOpen())
@@ -93,12 +89,28 @@ int main()
 				window.close();
 			else if (event.type == Event::KeyPressed)
 			{
-				if (event.key.code == Keyboard::Space)
+				if (event.key.code == Keyboard::Space && canFire)
 				{
-					// handle space bar
+					// handle space ba
+					Projectle missile(missileTexture, player.getShip());
+					missiles.addMissile(missile);
+					canFire = false;
+					conter = 30;
 				}
 				
 			}
+			else if (event.type == Event::MouseButtonReleased)
+			{
+
+			}
+		}
+		if (conter < 0)
+		{
+			canFire = true;
+		}
+		else
+		{
+			conter--;
 		}
 
 		//===========================================================
@@ -111,12 +123,22 @@ int main()
 		// will appear on top of background
 		window.draw(background);
 
-		moveShip(ship);
+		player.moveShip();
 
 		// draw the ship on top of background 
 		// (the ship from previous frame was erased when we drew background)
-		window.draw(ship);
+		player.draw(window);
 
+		missiles.removeMissiles();
+		missiles.move();
+		missiles.draw(window);
+		squad.checkForHit(missiles);
+		if (fameCount > 100)
+		{
+			fameCount = 0;
+			squad.move();
+		}
+		squad.draw(window);
 
 		// end the current frame; this makes everything that we have 
 		// already "drawn" actually show up on the screen
@@ -126,7 +148,7 @@ int main()
 		// Now control will go back to the top of the animation loop
 		// to build the next frame. Since we begin by drawing the
 		// background, each frame is rebuilt from scratch.
-
+		fameCount++;
 	} // end body of animation loop
 
 	return 0;
